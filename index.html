@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Note App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ======= HEADER ======= -->
+    <h1>📝 My Notes</h1>
+
+    <!-- ======= INPUT AREA ======= -->
+    <div class="input-area">
+      <input
+        type="text"
+        id="note-title"
+        placeholder="Note title..."
+      />
+      <textarea
+        id="note-body"
+        placeholder="Write your note here..."
+        rows="4"
+      ></textarea>
+      <button id="add-btn">+ Add Note</button>
+    </div>
+
+    <!-- ======= NOTES DISPLAY AREA ======= -->
+    <div class="notes-grid" id="notes-grid">
+      <!-- Notes will appear here dynamically -->
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
