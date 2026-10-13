@@ -1,13 +1,13 @@
 {
-  "name": "Note or Not",
-  "short_name": "Note or Not",
+  "name": "Note app",
+  "short_name": "Note app",
   "description": "Write it. Keep it. Find it.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f1420",
-  "theme_color": "#0f1420",
+  "background_color": "##033a2c",
+  "theme_color": "##033a2c",
   "icons": [
     {
       "src": "icons/icon-192.png",

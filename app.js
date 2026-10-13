@@ -370,7 +370,12 @@ async function seed() {
   }
   localStorage.setItem("seeded", "1");
 }
-
+/* ---------- Welcome screen ---------- */
+const welcome = $("#welcome");
+$("#btn-start").addEventListener("click", () => {
+  welcome.classList.add("leave");
+  setTimeout(() => welcome.remove(), 450);
+});
 /* ---------- 13. Start ---------- */
 (async function init() {
   db = await openDB();

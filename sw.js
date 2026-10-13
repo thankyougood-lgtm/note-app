@@ -2,7 +2,7 @@
 
 // Change this number every time you edit any app file,
 // so users get the new version instead of the old cache.
-const CACHE = "note-or-not-v1";
+const CACHE = "note-app-v2";
 
 const FILES = [
   "./",
