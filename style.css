@@ -669,3 +669,41 @@ ul { list-style: none; }
 }
 .btn.primary { background: var(--primary); color: #fff; }
 .btn.ghost { background: var(--surface-2); color: var(--muted); } background: var(--surface-2); color: var(--muted); }
+/* ===== Pop-up menu ===== */
+.menu {
+  position: fixed;
+  z-index: 50;
+  min-width: 190px;
+  padding: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+}
+.menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 1rem;
+}
+.menu button:active { background: var(--surface); }
+.menu button.danger { color: var(--c-red); }
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--nav-h) + 110px);
+  transform: translate(-50%, 20px);
+  padding: 12px 22px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 60;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
