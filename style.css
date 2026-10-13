@@ -229,6 +229,7 @@ ul { list-style: none; }
   white-space: pre-line;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -564,10 +565,10 @@ ul { list-style: none; }
   white-space: pre-line;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
 .note-more {
   flex: none;
   width: 28px;
