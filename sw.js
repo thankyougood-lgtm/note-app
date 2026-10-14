@@ -1,8 +1,7 @@
-/* ===== Note or Not: service worker ===== */
+/* ===== Note app: service worker ===== */
 
-// Change this number every time you edit any app file,
-// so users get the new version instead of the old cache.
-const CACHE = "note-app-v2";
+// Change the number whenever you edit any app file
+const CACHE = "note-app-v3";
 
 const FILES = [
   "./",
@@ -15,15 +14,13 @@ const FILES = [
   "./icons/icon-maskable-512.png",
 ];
 
-// 1. Install: save all files in the cache
+// 1. Install: precache all the app files
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(FILES))
-  );
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)));
   self.skipWaiting();
 });
 
-// 2. Activate: delete old caches from previous versions
+// 2. Activate: delete caches from older versions
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -35,27 +32,42 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// 3. Fetch: answer from the cache first, then the network
+// 3. Fetch: answer the browser's requests
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const req = event.request;
+  if (req.method !== "GET") return;
+  if (new URL(req.url).origin !== location.origin) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(event.request)
-        .then((response) => {
-          // save new same-site files for next time
-          if (response.ok && new URL(event.request.url).origin === location.origin) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+  // Opening the app: ask the server first.
+  // If the server is stopped or there is no internet, use the saved page.
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put("./index.html", copy));
           }
-          return response;
+          return res;
         })
-        .catch(() => {
-          // offline and not cached: show the app page for page loads
-          if (event.request.mode === "navigate") return caches.match("./index.html");
-        });
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
+  // Other files: saved copy first (fast), and refresh it quietly in the background
+  event.respondWith(
+    caches.match(req, { ignoreSearch: true }).then((cached) => {
+      const fresh = fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy));
+          }
+          return res;
+        })
+        .catch(() => cached);
+      return cached || fresh;
     })
   );
 });
