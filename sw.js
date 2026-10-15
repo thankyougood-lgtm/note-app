@@ -1,7 +1,7 @@
 /* ===== Note app: service worker ===== */
 
 // Change the number whenever you edit any app file
-const CACHE = "note-app-v4";
+const CACHE = "note-app-v5";
 
 const FILES = [
   "./",
@@ -10,6 +10,8 @@ const FILES = [
   "./js/main.js",
   "./js/db.js",
   "./js/utils.js",
+  "./js/store.js",
+  "./js/notes.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

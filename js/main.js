@@ -1,13 +1,16 @@
-/* ===== Note app: main.js (refactor step 1) ===== */
-import { initDB, dbGetAll, dbSave, dbDelete } from "./db.js";
+/* ===== Note app: main.js (refactor step 2) ===== */
+import { initDB, dbSave } from "./db.js";
 import { $, esc, formatDate } from "./utils.js";
-
-/* ---------- State ---------- */
-let notes = [];
-let filter = "all";      // all | note | todo | favorites | trash
-let query = "";
-let sortBy = "latest";   // latest | oldest | title
-let editingId = null;
+import { state, findNote, visibleNotes } from "./store.js";
+import {
+  loadNotes,
+  saveNote,
+  toggleFavorite,
+  trashNote,
+  restoreNote,
+  deleteForever,
+  emptyTrash,
+} from "./notes.js";
 
 /* ---------- Elements ---------- */
 const listEl = $("#notes-list");
@@ -49,32 +52,8 @@ const FILTER_TITLES = {
 };
 
 /* ---------- Render ---------- */
-function visibleNotes() {
-  const q = query.trim().toLowerCase();
-  let result = notes.filter((n) => {
-    if (filter === "trash") return n.trashed;
-    if (n.trashed) return false;
-    if (filter === "note") return n.type === "note";
-    if (filter === "todo") return n.type === "todo";
-    if (filter === "favorites") return n.favorite;
-    return true;
-  });
-
-  if (q) {
-    result = result.filter(
-      (n) => n.title.toLowerCase().includes(q) || n.body.toLowerCase().includes(q)
-    );
-  }
-
-  result.sort((a, b) => {
-    if (sortBy === "oldest") return a.updatedAt - b.updatedAt;
-    if (sortBy === "title") return a.title.localeCompare(b.title);
-    return b.updatedAt - a.updatedAt;
-  });
-  return result;
-}
-
 function render() {
+  const { filter, query } = state;
   const items = visibleNotes();
   titleEl.textContent = FILTER_TITLES[filter];
 
@@ -118,14 +97,9 @@ function render() {
   );
 }
 
-async function reload() {
-  notes = await dbGetAll();
-  render();
-}
-
 /* ---------- Add / edit ---------- */
 function openEditor(note) {
-  editingId = note ? note.id : null;
+  state.editingId = note ? note.id : null;
   noteTitle.value = note ? note.title : "";
   noteBody.value = note ? note.body : "";
   noteType.value = note ? note.type : "note";
@@ -138,23 +112,14 @@ form.addEventListener("submit", async (e) => {
   const title = noteTitle.value.trim();
   if (!title) return;
 
-  const now = Date.now();
-  if (editingId) {
-    const old = notes.find((n) => n.id === editingId);
-    await dbSave({ ...old, title, body: noteBody.value, type: noteType.value, updatedAt: now });
-  } else {
-    await dbSave({
-      title,
-      body: noteBody.value,
-      type: noteType.value,
-      favorite: false,
-      trashed: false,
-      createdAt: now,
-      updatedAt: now,
-    });
-  }
+  await saveNote({
+    id: state.editingId,
+    title,
+    body: noteBody.value,
+    type: noteType.value,
+  });
   editor.close();
-  await reload();
+  render();
 });
 
 $("#btn-cancel").addEventListener("click", () => editor.close());
@@ -201,23 +166,23 @@ document.addEventListener("click", (e) => {
   }
 });
 
-async function update(id, changes) {
-  const n = notes.find((x) => x.id === id);
-  await dbSave({ ...n, ...changes, updatedAt: Date.now() });
-  await reload();
-}
-
 function menuForNote(n) {
   if (n.trashed) {
     return [
-      { label: "Restore", action: () => update(n.id, { trashed: false }) },
+      {
+        label: "Restore",
+        action: async () => {
+          await restoreNote(n.id);
+          render();
+        },
+      },
       {
         label: "Delete forever",
         danger: true,
         action: async () => {
           if (confirm("Delete this note forever?")) {
-            await dbDelete(n.id);
-            await reload();
+            await deleteForever(n.id);
+            render();
           }
         },
       },
@@ -227,9 +192,19 @@ function menuForNote(n) {
     { label: "Edit", action: () => openEditor(n) },
     {
       label: n.favorite ? "Remove from favorites" : "Add to favorites",
-      action: () => update(n.id, { favorite: !n.favorite }),
+      action: async () => {
+        await toggleFavorite(n);
+        render();
+      },
     },
-    { label: "Move to trash", danger: true, action: () => update(n.id, { trashed: true }) },
+    {
+      label: "Move to trash",
+      danger: true,
+      action: async () => {
+        await trashNote(n.id);
+        render();
+      },
+    },
   ];
 }
 
@@ -237,7 +212,7 @@ function menuForNote(n) {
 listEl.addEventListener("click", (e) => {
   const li = e.target.closest(".note");
   if (!li) return;
-  const note = notes.find((n) => n.id === Number(li.dataset.id));
+  const note = findNote(Number(li.dataset.id));
   if (!note) return;
 
   const more = e.target.closest(".note-more");
@@ -257,11 +232,11 @@ $("#btn-menu").addEventListener("click", (e) => {
       label: "Empty trash",
       danger: true,
       action: async () => {
-        const trashed = notes.filter((n) => n.trashed);
-        if (!trashed.length) return toast("Trash is already empty");
-        if (confirm(`Delete ${trashed.length} note(s) forever?`)) {
-          await Promise.all(trashed.map((n) => dbDelete(n.id)));
-          await reload();
+        const count = state.notes.filter((n) => n.trashed).length;
+        if (!count) return toast("Trash is already empty");
+        if (confirm(`Delete ${count} note(s) forever?`)) {
+          await emptyTrash();
+          render();
         }
       },
     },
@@ -270,27 +245,27 @@ $("#btn-menu").addEventListener("click", (e) => {
 
 /* ---------- Search, sort, chips, bottom nav ---------- */
 searchInput.addEventListener("input", () => {
-  query = searchInput.value;
+  state.query = searchInput.value;
   render();
 });
 
 $("#sort-select").addEventListener("change", (e) => {
-  sortBy = e.target.value;
+  state.sortBy = e.target.value;
   render();
 });
 
 $("#chips").addEventListener("click", (e) => {
   const chip = e.target.closest(".chip");
   if (!chip) return;
-  filter = chip.dataset.filter;
+  state.filter = chip.dataset.filter;
   render();
 });
 
 document.querySelectorAll(".nav-item").forEach((btn) =>
   btn.addEventListener("click", () => {
     const view = btn.dataset.view;
-    if (view === "home") { filter = "all"; render(); }
-    else if (view === "favorites") { filter = "favorites"; render(); }
+    if (view === "home") { state.filter = "all"; render(); }
+    else if (view === "favorites") { state.filter = "favorites"; render(); }
     else toast("Coming soon");
   })
 );
@@ -337,7 +312,8 @@ $("#btn-start").addEventListener("click", () => {
 (async function init() {
   await initDB();
   await seed();
-  await reload();
+  await loadNotes();
+  render();
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch((err) =>
