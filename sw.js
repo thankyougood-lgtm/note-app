@@ -1,7 +1,7 @@
 /* ===== Note app: service worker ===== */
 
 // Change the number whenever you edit any app file
-const CACHE = "note-app-v5";
+const CACHE = "note-app-5.0.1";
 
 const FILES = [
   "./",
