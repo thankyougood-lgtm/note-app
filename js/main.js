@@ -1,7 +1,7 @@
-/* ===== Note app: main.js (refactor step 2) ===== */
+/* ===== Note app: main.js (refactor step 3) ===== */
 import { initDB, dbSave } from "./db.js";
-import { $, esc, formatDate } from "./utils.js";
-import { state, findNote, visibleNotes } from "./store.js";
+import { $ } from "./utils.js";
+import { state, findNote } from "./store.js";
 import {
   loadNotes,
   saveNote,
@@ -11,91 +11,16 @@ import {
   deleteForever,
   emptyTrash,
 } from "./notes.js";
+import { render } from "./render.js";
 
 /* ---------- Elements ---------- */
 const listEl = $("#notes-list");
-const emptyEl = $("#empty-state");
-const titleEl = $("#list-title");
 const searchInput = $("#search-input");
 const editor = $("#editor");
 const form = $("#editor-form");
 const noteTitle = $("#note-title");
 const noteBody = $("#note-body");
 const noteType = $("#note-type");
-
-/* ---------- Helpers ---------- */
-// Which colored icon a note gets
-function iconFor(n) {
-  if (n.trashed) return { color: "red", icon: "i-trash" };
-  if (n.favorite) return { color: "yellow", icon: "i-star" };
-  if (n.type === "todo") return { color: "green", icon: "i-check" };
-  return { color: "purple", icon: "i-note" };
-}
-
-function previewFor(n) {
-  if (n.type === "todo") {
-    return n.body
-      .split("\n")
-      .filter((l) => l.trim())
-      .map((l) => "• " + l.trim())
-      .join("\n");
-  }
-  return n.body;
-}
-
-const FILTER_TITLES = {
-  all: "Recent Notes",
-  note: "Notes",
-  todo: "To-Do",
-  favorites: "Favorites",
-  trash: "Trash",
-};
-
-/* ---------- Render ---------- */
-function render() {
-  const { filter, query } = state;
-  const items = visibleNotes();
-  titleEl.textContent = FILTER_TITLES[filter];
-
-  listEl.innerHTML = items
-    .map((n) => {
-      const { color, icon } = iconFor(n);
-      return `
-        <li class="note" data-id="${n.id}">
-          <div class="note-icon ${color}">
-            <svg><use href="#${icon}"/></svg>
-          </div>
-          <div class="note-body">
-            <div class="note-top">
-              <h3 class="note-title">${esc(n.title)}</h3>
-              <span class="note-date">${formatDate(n.updatedAt)}</span>
-            </div>
-            <p class="note-preview">${esc(previewFor(n))}</p>
-          </div>
-          <button class="note-more" aria-label="Note options">
-            <svg width="22" height="22"><use href="#i-dots"/></svg>
-          </button>
-        </li>`;
-    })
-    .join("");
-
-  emptyEl.hidden = items.length > 0;
-  if (filter === "trash") emptyEl.textContent = "Trash is empty.";
-  else if (query) emptyEl.textContent = "No notes match your search.";
-  else emptyEl.textContent = "No notes here yet. Tap the pencil to add one.";
-
-  // keep chips and bottom nav highlighted correctly
-  document.querySelectorAll(".chip").forEach((c) =>
-    c.classList.toggle("active", c.dataset.filter === filter)
-  );
-  document.querySelectorAll(".nav-item").forEach((b) =>
-    b.classList.toggle(
-      "active",
-      (b.dataset.view === "home" && filter !== "favorites") ||
-        (b.dataset.view === "favorites" && filter === "favorites")
-    )
-  );
-}
 
 /* ---------- Add / edit ---------- */
 function openEditor(note) {
