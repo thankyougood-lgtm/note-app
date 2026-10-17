@@ -1,4 +1,5 @@
-/* ===== Note app: main.js (refactor step 3) ===== */
+cat > js/main.js << 'EOF'
+/* ===== Note app: main.js (refactor step 4) ===== */
 import { initDB, dbSave } from "./db.js";
 import { $ } from "./utils.js";
 import { state, findNote } from "./store.js";
@@ -12,85 +13,26 @@ import {
   emptyTrash,
 } from "./notes.js";
 import { render } from "./render.js";
+import { toast, showMenu, openEditor, closeEditor, readEditor, initUI } from "./ui.js";
 
 /* ---------- Elements ---------- */
 const listEl = $("#notes-list");
 const searchInput = $("#search-input");
-const editor = $("#editor");
-const form = $("#editor-form");
-const noteTitle = $("#note-title");
-const noteBody = $("#note-body");
-const noteType = $("#note-type");
 
-/* ---------- Add / edit ---------- */
-function openEditor(note) {
-  state.editingId = note ? note.id : null;
-  noteTitle.value = note ? note.title : "";
-  noteBody.value = note ? note.body : "";
-  noteType.value = note ? note.type : "note";
-  editor.showModal();
-  noteTitle.focus();
-}
-
-form.addEventListener("submit", async (e) => {
+/* ---------- Add / edit: save button ---------- */
+$("#editor-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const title = noteTitle.value.trim();
+  const { title, body, type } = readEditor();
   if (!title) return;
 
-  await saveNote({
-    id: state.editingId,
-    title,
-    body: noteBody.value,
-    type: noteType.value,
-  });
-  editor.close();
+  await saveNote({ id: state.editingId, title, body, type });
+  closeEditor();
   render();
-});
-
-$("#btn-cancel").addEventListener("click", () => editor.close());
-
-// click on the dark backdrop closes the dialog
-editor.addEventListener("click", (e) => {
-  if (e.target === editor) editor.close();
 });
 
 $("#btn-add").addEventListener("click", () => openEditor(null));
 
-/* ---------- Pop-up menu (three dots) ---------- */
-let menuEl = null;
-
-function closeMenu() {
-  if (menuEl) menuEl.remove();
-  menuEl = null;
-}
-
-function showMenu(anchor, items) {
-  closeMenu();
-  menuEl = document.createElement("div");
-  menuEl.className = "menu";
-  items.forEach(({ label, action, danger }) => {
-    const b = document.createElement("button");
-    b.textContent = label;
-    if (danger) b.classList.add("danger");
-    b.addEventListener("click", async () => {
-      closeMenu();
-      await action();
-    });
-    menuEl.appendChild(b);
-  });
-  document.body.appendChild(menuEl);
-
-  const r = anchor.getBoundingClientRect();
-  menuEl.style.top = `${r.bottom + 6}px`;
-  menuEl.style.right = `${Math.max(12, window.innerWidth - r.right)}px`;
-}
-
-document.addEventListener("click", (e) => {
-  if (menuEl && !menuEl.contains(e.target) && !e.target.closest(".note-more, #btn-menu")) {
-    closeMenu();
-  }
-});
-
+/* ---------- What the three dots on a note offer ---------- */
 function menuForNote(n) {
   if (n.trashed) {
     return [
@@ -195,21 +137,6 @@ document.querySelectorAll(".nav-item").forEach((btn) =>
   })
 );
 
-/* ---------- Toast message ---------- */
-let toastTimer;
-function toast(text) {
-  let t = $(".toast");
-  if (!t) {
-    t = document.createElement("div");
-    t.className = "toast";
-    document.body.appendChild(t);
-  }
-  t.textContent = text;
-  t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
-}
-
 /* ---------- First-run sample notes ---------- */
 async function seed() {
   if (localStorage.getItem("seeded")) return;
@@ -226,15 +153,9 @@ async function seed() {
   localStorage.setItem("seeded", "1");
 }
 
-/* ---------- Welcome screen ---------- */
-const welcome = $("#welcome");
-$("#btn-start").addEventListener("click", () => {
-  welcome.classList.add("leave");
-  setTimeout(() => welcome.remove(), 450);
-});
-
 /* ---------- Start ---------- */
 (async function init() {
+  initUI();
   await initDB();
   await seed();
   await loadNotes();
@@ -246,3 +167,4 @@ $("#btn-start").addEventListener("click", () => {
     );
   }
 })();
+EOF
