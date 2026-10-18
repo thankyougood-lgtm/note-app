@@ -1,8 +1,7 @@
-cat > sw.js << 'EOF'
 /* ===== Note app: service worker ===== */
 
 // Change the number whenever you edit any app file
-const CACHE = "note-app-5.2.0";
+const CACHE = "note-app-5.3.0";
 
 const FILES = [
   "./",
@@ -15,6 +14,7 @@ const FILES = [
   "./js/notes.js",
   "./js/render.js",
   "./js/ui.js",
+  "./js/events.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -78,4 +78,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-EOF
