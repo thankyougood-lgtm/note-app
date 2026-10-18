@@ -1,28 +1,22 @@
 /* ===== Kitchen: the actions that change notes ===== */
 import { dbGetAll, dbSave, dbDelete } from "./db.js";
 import { state, findNote } from "./store.js";
+import { newNote, upgradeNote, linesToItems } from "./model.js";
 
 // Read all notes from the database into memory
 export async function loadNotes() {
-  state.notes = await dbGetAll();
+  const all = await dbGetAll();
+  state.notes = all.map(upgradeNote); // safety net: every note has every field
 }
 
 // Create a new note, or update an existing one when `id` is given
 export async function saveNote({ id, title, body, type }) {
-  const now = Date.now();
   if (id) {
     const old = findNote(id);
-    await dbSave({ ...old, title, body, type, updatedAt: now });
+    const items = type === "todo" ? linesToItems(body, old.items) : [];
+    await dbSave({ ...old, title, body, type, items, updatedAt: Date.now() });
   } else {
-    await dbSave({
-      title,
-      body,
-      type,
-      favorite: false,
-      trashed: false,
-      createdAt: now,
-      updatedAt: now,
-    });
+    await dbSave(newNote({ title, body, type }));
   }
   await loadNotes();
 }

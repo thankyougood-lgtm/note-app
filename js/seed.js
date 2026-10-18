@@ -1,5 +1,6 @@
 /* ===== First-run sample notes ===== */
 import { dbSave } from "./db.js";
+import { newNote } from "./model.js";
 
 const SAMPLE = [
   { title: "Welcome to Note app", body: "This is your space to write notes, ideas, reminders, and more. Keep it simple. Keep it yours.", type: "note", favorite: false },
@@ -13,7 +14,8 @@ export async function seed() {
   const now = Date.now();
   for (let i = 0; i < SAMPLE.length; i++) {
     const t = now - i * 60000; // one minute apart so the order is stable
-    await dbSave({ ...SAMPLE[i], trashed: false, createdAt: t, updatedAt: t });
+    const note = newNote(SAMPLE[i]);
+    await dbSave({ ...note, favorite: SAMPLE[i].favorite, createdAt: t, updatedAt: t });
   }
   localStorage.setItem("seeded", "1");
 }
