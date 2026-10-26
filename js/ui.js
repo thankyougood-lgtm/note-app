@@ -43,9 +43,25 @@ export function showMenu(anchor, items) {
   });
   document.body.appendChild(menuEl);
 
+  // Position it next to the anchor, but keep it inside the viewport
   const r = anchor.getBoundingClientRect();
-  menuEl.style.top = `${r.bottom + 6}px`;
-  menuEl.style.right = `${Math.max(12, window.innerWidth - r.right)}px`;
+  const mRect = menuEl.getBoundingClientRect();
+  const margin = 6;
+
+  // vertical: below by default, flip above if not enough space
+  const spaceBelow = window.innerHeight - r.bottom;
+  const spaceAbove = r.top;
+  if (spaceBelow < mRect.height + margin && spaceAbove > mRect.height + margin) {
+    menuEl.style.top = `${r.top - mRect.height - margin}px`;
+  } else {
+    menuEl.style.top = `${r.bottom + margin}px`;
+  }
+
+  // horizontal: right-aligned to the anchor, clamped to the viewport
+  const rightOffset = window.innerWidth - r.right;
+  const left = Math.max(12, window.innerWidth - rightOffset - mRect.width);
+  menuEl.style.left = `${left}px`;
+  menuEl.style.right = "auto";
 }
 
 /* ---------- Editor dialog (add / edit a note) ---------- */
@@ -87,6 +103,11 @@ function closeWelcome() {
 
 /* ---------- Start the small listeners (call once) ---------- */
 export function initUI() {
+  // If the user already dismissed the welcome screen, skip it
+  if (localStorage.getItem("seenWelcome")) {
+    $("#welcome")?.remove();
+  }
+
   // clicking anywhere outside the menu closes it
   document.addEventListener("click", (e) => {
     if (menuEl && !menuEl.contains(e.target) && !e.target.closest(".note-more, #btn-menu")) {
@@ -101,5 +122,8 @@ export function initUI() {
   });
 
   // the pencil on the welcome screen
-  $("#btn-start").addEventListener("click", closeWelcome);
+  $("#btn-start")?.addEventListener("click", () => {
+    localStorage.setItem("seenWelcome", "1");
+    closeWelcome();
+  });
 }

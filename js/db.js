@@ -42,8 +42,14 @@ export async function initDB() {
       console.log("Database upgrade is waiting: close other tabs of this app.");
   });
 
-  // if a newer version of the app opens in another tab, let it upgrade
-  db.onversionchange = () => db.close();
+  // If a newer version of the app opens in another tab, tell the user
+  // instead of silently breaking every later DB call.
+  db.onversionchange = () => {
+    db.close();
+    if (confirm("A newer version of Note app is open in another tab. Reload this tab?")) {
+      location.reload();
+    }
+  };
 }
 
 // Run one action on the notes store inside a transaction
