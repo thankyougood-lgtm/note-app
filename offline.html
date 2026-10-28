@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Offline — Note App</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, sans-serif;
+      background: #F8F9FD;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .icon { font-size: 64px; margin-bottom: 16px; }
+    h1 { color: #1A1A2E; font-size: 20px; margin-bottom: 8px; }
+    p { color: #8A8DA6; font-size: 14px; max-width: 280px; }
+    button {
+      margin-top: 24px;
+      background: #4C7EF3;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">📡</div>
+  <h1>You're Offline</h1>
+  <p>No internet connection. Your saved notes are still available!</p>
+  <button onclick="location.href='/index.html'">Go to My Notes</button>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* ==========================================================================
+   PRINT — Styles used only when exporting to PDF via window.print()
+   ========================================================================== */
+
+#printArea {
+  display: none;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printArea, #printArea * {
+    visibility: visible;
+    display: block;
+  }
+  #printArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  .print-note h2 {
+    margin-bottom: 4px;
+  }
+  .print-date {
+    color: #888;
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+}

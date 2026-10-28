@@ -1,0 +1,75 @@
+/* ==========================================================================
+   CONFIRM DIALOG — Custom replacement for browser confirm()
+   ========================================================================== */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  padding: var(--space-lg);
+}
+
+.confirm-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.confirm-box {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 0.2s ease;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.confirm-overlay.active .confirm-box {
+  transform: scale(1);
+}
+
+.confirm-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: var(--space-sm);
+}
+
+.confirm-message {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-gray);
+  margin-bottom: var(--space-lg);
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.confirm-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.confirm-btn-cancel {
+  background: var(--color-bg);
+  color: var(--color-text-dark);
+}
+
+.confirm-btn-danger {
+  background: var(--color-danger);
+  color: white;
+}

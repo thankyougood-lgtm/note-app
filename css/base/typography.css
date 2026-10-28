@@ -1,0 +1,70 @@
+/* ==========================================================================
+   TYPOGRAPHY — Text styles used across the app
+   ========================================================================== */
+
+body {
+  font-family: var(--font-main);
+  color: var(--color-text-dark);
+  font-size: var(--font-size-md);
+  line-height: 1.5;
+}
+
+.text-greeting {
+  font-size: var(--font-size-md);
+  color: var(--color-text-gray);
+  font-weight: 400;
+}
+
+.text-username {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.text-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-gray);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.text-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.text-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.card-title {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.card-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-gray);
+}
+
+.note-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 4px;
+}
+
+.note-preview {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-gray);
+  line-height: 1.4;
+}
+
+.note-date {
+  font-size: 11px;
+  color: var(--color-text-gray);
+}

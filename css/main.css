@@ -1,0 +1,31 @@
+/* ==========================================================================
+   MAIN CSS — Entry point
+   This file imports all other CSS files in the correct order.
+   Never write actual styles here — just imports.
+   ========================================================================== */
+
+/* Base */
+@import url('base/reset.css');
+@import url('base/variables.css');
+@import url('base/dark-theme.css');
+@import url('base/typography.css');
+
+
+/* Layout */
+@import url('layout/container.css');
+@import url('layout/header.css');
+@import url('layout/drawer.css');
+@import url('layout/pages.css');
+@import url('layout/bottom-nav.css');
+
+/* Components */
+@import url('components/search-bar.css');
+@import url('components/quick-actions.css');
+@import url('components/note-card.css');
+@import url('components/fab-button.css');
+@import url('components/modal.css');
+@import url('components/confirm-dialog.css');
+@import url('components/toast.css');
+
+
+@import url('print.css');

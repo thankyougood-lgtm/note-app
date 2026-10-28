@@ -1,0 +1,86 @@
+/* ==========================================================================
+   VARIABLES — Design System
+   All colors, spacing, and reusable values live here.
+   Change a color once here, it updates everywhere in the app.
+   ========================================================================== */
+
+:root {
+  /* ---- Base Colors ---- */
+  --color-bg: #F8F9FD;
+  --color-white: #FFFFFF;
+  --color-text-dark: #1A1A2E;
+  --color-text-gray: #8A8DA6;
+  --color-border: #ECEEF5;
+
+  /* ---- Primary Brand Color ---- */
+  --color-primary: #4C7EF3;
+  --color-primary-dark: #3A66D6;
+  --color-primary-light: #E8EFFE;
+
+  /* ---- Quick Action Cards ---- */
+  --card-blue-bg: #E8EFFE;
+  --card-blue-icon: #4C7EF3;
+
+  --card-green-bg: #E5F8ED;
+  --card-green-icon: #34C77B;
+
+  --card-purple-bg: #F2E9FE;
+  --card-purple-icon: #A259F7;
+
+  --card-yellow-bg: #FFF3DD;
+  --card-yellow-icon: #FFB23F;
+
+  /* ---- Note Card Backgrounds ---- */
+  --note-blue: #DCE8FF;
+  --note-green: #DAF5E4;
+  --note-purple: #EBE0FB;
+  --note-red: #FCE2E2;
+
+  /* ---- Status / Accent ---- */
+  --color-star: #FFC43D;
+  --color-danger: #FF5A5F;
+  --color-success: #34C77B;
+
+  /* ---- Spacing Scale ---- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* ---- Border Radius ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  /* ---- Shadows ---- */
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-fab: 0 6px 16px rgba(76, 126, 243, 0.35);
+
+  /* ---- Typography ---- */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+
+  /* ---- Layout ---- */
+  --bottom-nav-height: 70px;
+  --header-height: 60px;
+  --max-width: 480px; /* keeps it mobile-feeling even on desktop */
+}
+/* Smooth theme transition */
+body, 
+.app-container,
+.action-card,
+.note-card,
+.search-bar,
+.settings-item,
+.side-drawer,
+.bottom-nav,
+.modal-sheet {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

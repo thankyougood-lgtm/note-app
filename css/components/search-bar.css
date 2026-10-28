@@ -1,0 +1,29 @@
+/* ==========================================================================
+   SEARCH BAR
+   ========================================================================== */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-gray); /* ADD THIS — controls SVG via currentColor */
+}
+
+.search-bar input {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dark);
+  background: transparent;
+}
+
+.search-bar input::placeholder {
+  color: var(--color-text-gray);
+}
+
+.search-bar svg {
+  flex-shrink: 0;
+}

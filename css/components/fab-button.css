@@ -1,0 +1,30 @@
+/* ==========================================================================
+   FAB — Floating Action Button (+ Add Note)
+   ========================================================================== */
+
+.fab-btn {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  right: calc((100vw - var(--max-width)) / 2 + 20px);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-fab);
+  z-index: 50;
+  transition: transform 0.2s ease;
+}
+
+.fab-btn:active {
+  transform: scale(0.9);
+}
+
+/* On small screens, max-width fills viewport, so adjust right position */
+@media (max-width: 480px) {
+  .fab-btn {
+    right: 20px;
+  }
+}

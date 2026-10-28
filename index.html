@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Note App</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4C7EF3">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Note App">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <script>
+  if (localStorage.getItem('noteapp_theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode-preload');
+  }
+</script>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M3 6H21M3 12H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+      <button class="avatar-btn" id="avatarBtn" aria-label="Profile">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" fill="#4C7EF3"/>
+          <path d="M4 20C4 16.6863 7.58172 14 12 14C16.4183 14 20 16.6863 20 20" stroke="#4C7EF3" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ===== SIDE MENU DRAWER ===== -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="side-drawer" id="sideDrawer">
+      <div class="drawer-header">
+        <div class="avatar-btn" style="width:48px;height:48px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" fill="#4C7EF3"/>
+            <path d="M4 20C4 16.6863 7.58172 14 12 14C16.4183 14 20 16.6863 20 20" stroke="#4C7EF3" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>NOTE</h3>
+       
+      </div>
+
+      <nav class="drawer-nav">
+        <button class="drawer-item active" data-page="home">🏠 Home</button>
+        <button class="drawer-item" data-page="notes" data-filter="all">📝 All Notes</button>
+        <button class="drawer-item" data-page="notes" data-filter="favorites">⭐ Favorites</button>
+        <button class="drawer-item" data-page="notes" data-filter="trash">🗑️ Trash</button>
+        <button class="drawer-item" data-page="folders">📁 Folders</button>
+        <button class="drawer-item" data-page="settings">⚙️ Settings</button>
+      </nav>
+
+      <div class="drawer-footer">
+        <p class="text-subtitle">Note App v1.0</p>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT (scrollable) ===== -->
+    <main class="app-main">
+
+      <!-- ===== PAGE: HOME ===== -->
+      <div class="page" id="page-home">
+
+        <!-- Greeting -->
+        <section class="greeting-section">
+          <p class="text-greeting">Good Morning,</p>
+          <h1 class="text-username">Yosef <span class="wave">👋</span></h1>
+          <p class="text-subtitle">Capture your thoughts, turn them into progress.</p>
+        </section>
+
+        <!-- Search Bar -->
+        <section class="search-section">
+          <div class="search-bar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="7" stroke="#8A8DA6" stroke-width="2"/>
+              <path d="M21 21L17 17" stroke="#8A8DA6" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search notes..." />
+          </div>
+        </section>
+
+        <!-- Quick Action Cards -->
+        <section class="quick-actions">
+          <button class="action-card" data-filter="all">
+            <div class="action-icon icon-blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M6 2H14L19 7V20C19 21.1 18.1 22 17 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z" stroke="white" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
+            <span class="card-title">All Notes</span>
+            <span class="card-count" id="countAll">0</span>
+          </button>
+
+          <button class="action-card" data-filter="favorites">
+            <div class="action-icon icon-green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="white"/>
+              </svg>
+            </div>
+            <span class="card-title">Favorites</span>
+            <span class="card-count" id="countFavorites">0</span>
+          </button>
+
+          <button class="action-card" data-filter="trash">
+            <div class="action-icon icon-purple">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6H21M8 6V4C8 3.4 8.4 3 9 3H15C15.6 3 16 3.4 16 4V6M19 6V20C19 21.1 18.1 22 17 22H7C5.9 22 5 21.1 5 20V6H19Z" stroke="white" stroke-width="2"/>
+              </svg>
+            </div>
+            <span class="card-title">Trash</span>
+            <span class="card-count" id="countTrash">0</span>
+          </button>
+
+          <button class="action-card" data-filter="folders">
+            <div class="action-icon icon-yellow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7C3 5.9 3.9 5 5 5H9L11 7H19C20.1 7 21 7.9 21 9V17C21 18.1 20.1 19 19 19H5C3.9 19 3 18.1 3 17V7Z" fill="white"/>
+              </svg>
+            </div>
+            <span class="card-title">Folders</span>
+            <span class="card-count" id="countFolders">0</span>
+          </button>
+        </section>
+
+        <!-- Recent Notes -->
+        <section class="recent-notes-section">
+          <div class="section-header">
+            <h2 class="text-section-title">Recent Notes</h2>
+            <a href="#" class="text-link" id="viewAllBtn">View All ›</a>
+          </div>
+
+          <div class="notes-list" id="notesList">
+            <p class="empty-state" id="emptyState" style="display:none;">
+              No notes yet. Tap + to create your first note!
+            </p>
+          </div>
+        </section>
+
+      </div>
+      <!-- ===== END PAGE: HOME ===== -->
+
+
+      <!-- ===== PAGE: NOTES (full list) ===== -->
+      <div class="page" id="page-notes" style="display:none;">
+        <section class="page-header-section">
+          <h1 class="text-section-title">All Notes</h1>
+        </section>
+
+        <section class="search-section">
+          <div class="search-bar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+  <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+  <path d="M21 21L17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+</svg>
+            <input type="text" id="searchInputNotes" placeholder="Search notes..." />
+          </div>
+        </section>
+
+        <section class="notes-filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="favorites">Favorites</button>
+          <button class="filter-tab" data-filter="trash">Trash</button>
+        </section>
+
+        <section class="recent-notes-section">
+          <div class="notes-list" id="notesListFull">
+            <p class="empty-state" id="emptyStateFull" style="display:none;">
+              No notes found.
+            </p>
+          </div>
+        </section>
+      </div>
+      <!-- ===== END PAGE: NOTES ===== -->
+
+
+      <!-- ===== PAGE: FOLDERS ===== -->
+      <div class="page" id="page-folders" style="display:none;">
+        <section class="page-header-section">
+          <h1 class="text-section-title">Folders</h1>
+        </section>
+        <section class="folders-grid" id="foldersGrid">
+          <p class="empty-state">No folders yet. Create one to organize your notes!</p>
+        </section>
+        <button class="btn-create-folder" id="createFolderBtn">+ New Folder</button>
+      </div>
+      <!-- ===== END PAGE: FOLDERS ===== -->
+
+
+      <!-- ===== PAGE: SETTINGS ===== -->
+      <div class="page" id="page-settings" style="display:none;">
+        <section class="page-header-section">
+          <h1 class="text-section-title">Settings</h1>
+        </section>
+
+        <section class="settings-list">
+                    <div class="settings-item">
+            <span>🌙 Dark Mode</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="darkModeToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-item">
+            <span>📄 Export as PDF</span>
+            <button class="settings-action-btn" id="exportPdfBtn">Export</button>
+          </div>
+<div class="settings-item">
+  <span>📝 Export as DOC</span>
+  <button class="settings-action-btn" id="exportDocBtn">Export</button>
+</div>
+          <div class="settings-item">
+            <span>🗑️ Clear All Data</span>
+            <button class="settings-action-btn danger" id="clearDataBtn">Clear</button>
+          </div>
+          <div class="settings-item">
+            <span>ℹ️ About</span>
+            <span class="settings-value">Note App v1.0</span>
+          </div>
+        </section>
+      </div>
+      <!-- ===== END PAGE: SETTINGS ===== -->
+
+    </main>
+
+    <!-- ===== FLOATING ACTION BUTTON ===== -->
+    <button class="fab-btn" id="fabAddNote" aria-label="Add Note">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 5V19M5 12H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- ===== BOTTOM NAVIGATION ===== -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-page="home">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 9L12 2L21 9V20C21 21.1 20.1 22 19 22H5C3.9 22 3 21.1 3 20V9Z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-item" data-page="notes">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M6 2H14L19 7V20C19 21.1 18.1 22 17 22H6C4.9 22 4 21.1 4 20V4C4 2.9 4.9 2 6 2Z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Notes</span>
+      </button>
+
+      <button class="nav-item" data-page="folders">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 7C3 5.9 3.9 5 5 5H9L11 7H19C20.1 7 21 7.9 21 9V17C21 18.1 20.1 19 19 19H5C3.9 19 3 18.1 3 17V7Z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Folders</span>
+      </button>
+
+      <button class="nav-item" data-page="settings">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M19.4 15C19.2 15.5 19.3 16.1 19.6 16.5L19.7 16.6C20.3 17.2 20.3 18.2 19.7 18.8C19.1 19.4 18.1 19.4 17.5 18.8L17.4 18.7C17 18.4 16.4 18.3 15.9 18.5C15.4 18.7 15.1 19.2 15.1 19.7V20C15.1 20.9 14.4 21.6 13.5 21.6H12.5C11.6 21.6 10.9 20.9 10.9 20V19.9C10.9 19.3 10.5 18.8 10 18.6C9.5 18.4 8.9 18.5 8.5 18.9L8.4 19C7.8 19.6 6.8 19.6 6.2 19C5.6 18.4 5.6 17.4 6.2 16.8L6.3 16.7C6.7 16.3 6.8 15.7 6.6 15.2C6.4 14.7 5.9 14.4 5.4 14.4H5.1C4.2 14.4 3.5 13.7 3.5 12.8V11.8C3.5 10.9 4.2 10.2 5.1 10.2H5.2C5.8 10.2 6.3 9.8 6.5 9.3C6.7 8.8 6.6 8.2 6.2 7.8L6.1 7.7C5.5 7.1 5.5 6.1 6.1 5.5C6.7 4.9 7.7 4.9 8.3 5.5L8.4 5.6C8.8 6 9.4 6.1 9.9 5.9H10C10.5 5.7 10.8 5.2 10.8 4.7V4.4C10.8 3.5 11.5 2.8 12.4 2.8H13.4C14.3 2.8 15 3.5 15 4.4V4.5C15 5 15.3 5.5 15.8 5.7C16.3 5.9 16.9 5.8 17.3 5.4L17.4 5.3C18 4.7 19 4.7 19.6 5.3C20.2 5.9 20.2 6.9 19.6 7.5L19.5 7.6C19.1 8 19 8.6 19.2 9.1V9.2C19.4 9.7 19.9 10 20.4 10H20.7C21.6 10 22.3 10.7 22.3 11.6V12.6C22.3 13.5 21.6 14.2 20.7 14.2H20.6C20.1 14.2 19.6 14.5 19.4 15Z" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+  </div>
+    <!-- ===== CUSTOM CONFIRM DIALOG ===== -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
+      <p class="confirm-message" id="confirmMessage">This action cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-btn-cancel" id="confirmCancelBtn">Cancel</button>
+        <button class="confirm-btn confirm-btn-danger" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PROMPT DIALOG (for Folder name, etc.) ===== -->
+  <div class="confirm-overlay" id="promptOverlay">
+    <div class="confirm-box">
+      <h3 class="confirm-title" id="promptTitle">Enter a name</h3>
+      <input type="text" class="prompt-input" id="promptInput" placeholder="Folder name">
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-btn-cancel" id="promptCancelBtn">Cancel</button>
+        <button class="confirm-btn confirm-btn-primary" id="promptOkBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST NOTIFICATION ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== ADD/EDIT NOTE MODAL ===== -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <input type="text" class="modal-title-input" id="noteTitleInput" placeholder="Note title" />
+      <textarea class="modal-body-input" id="noteBodyInput" placeholder="Start writing..."></textarea>
+      <div class="modal-actions">
+        <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Cancel</button>
+        <button class="modal-btn modal-btn-save" id="modalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (order matters) -->
+  <script src="js/utils/generateId.js"></script>
+  <script src="js/utils/dateFormat.js"></script>
+  <script src="js/utils/dialogs.js"></script>
+  <script src="js/modules/storage.js"></script>
+  <script src="js/modules/notes.js"></script>
+<script src="js/modules/folders.js"></script>
+  <script src="js/modules/render.js"></script>
+ <script src="js/modules/theme.js"></script>
+<script src="js/modules/export.js"></script>
+  <script src="js/modules/navigation.js"></script>
+  <script src="js/modules/search.js"></script>
+  <script src="js/pwa/registerSW.js"></script>
+  <script src="js/pwa/installPrompt.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

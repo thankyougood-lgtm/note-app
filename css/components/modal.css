@@ -1,0 +1,90 @@
+/* ==========================================================================
+   MODAL — Add/Edit note overlay
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+    align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-sheet {
+  background: var(--color-white);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.active .modal-sheet {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-md);
+}
+
+.modal-title-input {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  width: 100%;
+  margin-bottom: var(--space-sm);
+}
+
+.modal-body-input {
+  font-size: var(--font-size-sm);
+  width: 100%;
+  min-height: 150px;
+  resize: none;
+  color: var(--color-text-dark);
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.modal-btn {
+  flex: 1;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.modal-btn-cancel {
+  background: var(--color-bg);
+  color: var(--color-text-gray);
+}
+
+.modal-btn-save {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
