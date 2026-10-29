@@ -58,10 +58,8 @@
   gap: 4px;
   color: var(--color-text-gray); /* ADD THIS */
 }
+
 .note-card-menu {
-  position: absolute;
-  top: var(--space-md);
-  right: var(--space-md);
   width: 24px;
   height: 24px;
   display: flex;
@@ -93,4 +91,41 @@
   color: var(--color-text-gray);
   font-size: var(--font-size-sm);
   padding: var(--space-xl) 0;
+}
+/* ---- Note Card Dropdown Menu (3-dot) ---- */
+.note-card-top-actions {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+}
+
+.note-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  min-width: 170px;
+  z-index: 50;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.note-dropdown-menu.active {
+  display: flex;
+}
+
+.dropdown-item {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dark);
+  background: transparent;
+  white-space: nowrap;
+}
+
+.dropdown-item:hover {
+  background: var(--color-bg);
 }

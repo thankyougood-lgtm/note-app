@@ -1,5 +1,3 @@
-
-
 /* ==========================================================================
    RENDER — Builds the HTML for notes and injects it into the page
    ========================================================================== */
@@ -14,6 +12,17 @@ function createNoteCardHTML(note) {
   const preview = note.body
     ? note.body.substring(0, 60) + (note.body.length > 60 ? '...' : '')
     : 'No additional text';
+
+  const favLabel = note.isFavorite ? '💔 Unfavorite' : '⭐ Favorite';
+
+  const trashActions = note.isTrashed
+    ? `
+      <button class="dropdown-item" data-action="restore" data-id="${note.id}">♻️ Restore</button>
+      <button class="dropdown-item" data-action="delete-forever" data-id="${note.id}">❌ Delete Forever</button>
+    `
+    : `
+      <button class="dropdown-item" data-action="trash" data-id="${note.id}">🗑️ Move to Trash</button>
+    `;
 
   return `
     <div class="note-card bg-${note.color}" data-id="${note.id}">
@@ -32,7 +41,17 @@ function createNoteCardHTML(note) {
           <span>${formatDate(note.createdAt)}</span>
         </div>
       </div>
-      <button class="note-card-menu" data-action="menu" data-id="${note.id}">⋯</button>
+
+      <div class="note-card-top-actions">
+        <button class="note-card-menu" data-action="toggle-menu" data-id="${note.id}">⋯</button>
+        <div class="note-dropdown-menu" id="dropdown-${note.id}">
+          <button class="dropdown-item" data-action="favorite" data-id="${note.id}">${favLabel}</button>
+          <button class="dropdown-item" data-action="export-pdf" data-id="${note.id}">📄 Export as PDF</button>
+          <button class="dropdown-item" data-action="export-doc" data-id="${note.id}">📝 Export as DOC</button>
+          ${trashActions}
+        </div>
+      </div>
+
       <button class="note-card-star" data-action="favorite" data-id="${note.id}">
         ${note.isFavorite ? '⭐' : ''}
       </button>
@@ -63,6 +82,7 @@ function renderCounts() {
   document.getElementById('countTrash').textContent = counts.trash;
   document.getElementById('countFolders').textContent = counts.folders;
 }
+
 function renderNotesListFull(notes) {
   const container = document.getElementById('notesListFull');
   const emptyState = document.getElementById('emptyStateFull');

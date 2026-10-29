@@ -121,6 +121,23 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    /* ---- Export as PDF ---- */
+    const exportPdfItem = e.target.closest('[data-action="export-pdf"]');
+    if (exportPdfItem) {
+      e.stopPropagation();
+      exportSingleNoteAsPdf(exportPdfItem.dataset.id);
+      return;
+    }
+
+    /* ---- Export as DOC ---- */
+    const exportDocItem = e.target.closest('[data-action="export-doc"]');
+    if (exportDocItem) {
+      e.stopPropagation();
+      exportSingleNoteAsDoc(exportDocItem.dataset.id);
+      showToast('Note exported', 'success');
+      return;
+    }
+
     /* ---- Move to Trash ---- */
     const trashBtn = e.target.closest('[data-action="trash"]');
     if (trashBtn) {
