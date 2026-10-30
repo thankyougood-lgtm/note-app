@@ -12,12 +12,13 @@ function saveNote(note) {
   setStorage(notes);
 }
 
-function createNote({ title, body, color }) {
+function createNote({ title, body, color, folderId }) {
   const note = {
     id: generateId(),
     title: title || 'Untitled',
     body: body || '',
     color: color || 'blue',
+    folderId: folderId || null,
     isFavorite: false,
     isTrashed: false,
     createdAt: Date.now(),

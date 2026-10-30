@@ -73,3 +73,38 @@
   background: var(--color-danger);
   color: white;
 }
+.checklist-box {
+  max-width: 360px;
+  text-align: left;
+}
+
+.checklist-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dark);
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.confirm-btn-primary {
+  background: var(--color-primary);
+  color: white;
+}

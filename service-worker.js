@@ -3,7 +3,7 @@
    Caches app shell files so the app works without internet.
    ========================================================================== */
 
-const CACHE_NAME = 'noteapp-cache-v3';
+const CACHE_NAME = 'noteapp-cache-v14';
 
 const FILES_TO_CACHE = [
   '/',

@@ -8,7 +8,7 @@
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4C7EF3">
-  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -82,7 +82,7 @@
       <div class="page" id="page-home">
 
         <!-- Greeting -->
-        <section class="greeting-section">
+        <!--section class="greeting-section">
           <p class="text-greeting">Good Morning,</p>
           <h1 class="text-username">Yosef <span class="wave">👋</span></h1>
           <p class="text-subtitle">Capture your thoughts, turn them into progress.</p>
@@ -163,7 +163,8 @@
       <!-- ===== PAGE: NOTES (full list) ===== -->
       <div class="page" id="page-notes" style="display:none;">
         <section class="page-header-section">
-          <h1 class="text-section-title">All Notes</h1>
+          <button class="back-btn" id="backToFoldersBtn" style="display:none;">← Back</button>
+          <h1 class="text-section-title" id="notesPageTitle">All Notes</h1>
         </section>
 
         <section class="search-section">
@@ -176,7 +177,7 @@
           </div>
         </section>
 
-        <section class="notes-filter-tabs">
+        <section class="notes-filter-tabs" id="notesFilterTabs">
           <button class="filter-tab active" data-filter="all">All</button>
           <button class="filter-tab" data-filter="favorites">Favorites</button>
           <button class="filter-tab" data-filter="trash">Trash</button>
@@ -306,6 +307,18 @@
     </div>
   </div>
 
+  <!-- ===== ADD NOTES TO FOLDER CHECKLIST ===== -->
+  <div class="confirm-overlay" id="noteChecklistOverlay">
+    <div class="confirm-box checklist-box">
+      <h3 class="confirm-title">Add Notes to Folder</h3>
+      <div class="checklist-list" id="checklistList"></div>
+      <div class="confirm-actions">
+        <button class="confirm-btn confirm-btn-cancel" id="checklistCancelBtn">Cancel</button>
+        <button class="confirm-btn confirm-btn-primary" id="checklistSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TOAST NOTIFICATION ===== -->
   <div class="toast" id="toast"></div>
 
@@ -314,6 +327,9 @@
     <div class="modal-sheet">
       <div class="modal-handle"></div>
       <input type="text" class="modal-title-input" id="noteTitleInput" placeholder="Note title" />
+      <select class="modal-folder-select" id="noteFolderSelect">
+        <option value="">No Folder</option>
+      </select>
       <textarea class="modal-body-input" id="noteBodyInput" placeholder="Start writing..."></textarea>
       <div class="modal-actions">
         <button class="modal-btn modal-btn-cancel" id="modalCancelBtn">Cancel</button>

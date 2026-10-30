@@ -221,3 +221,18 @@
   background: var(--color-bg);
   color: var(--color-text-dark);
 }
+
+.folder-card-top-actions {
+  position: relative;
+}
+
+.back-btn {
+  background: transparent;
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: var(--space-xs);
+  text-align: left;
+  align-self: flex-start;
+}

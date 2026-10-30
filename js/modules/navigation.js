@@ -4,6 +4,7 @@
 
 let currentFilter = 'all';
 let currentPage = 'home';
+let currentFolderId = null;
 
 /* ---- PAGE SWITCHING ---- */
 function showPage(pageName) {
@@ -51,9 +52,16 @@ function getNotesForFilter(filter) {
   switch (filter) {
     case 'favorites': return getFavoriteNotes();
     case 'trash': return getTrashedNotes();
+    case 'folder': return getAllNotes().filter(n => n.folderId === currentFolderId && !n.isTrashed);
     case 'folders': return [];
     default: return getActiveNotes();
   }
+}
+
+function openFolder(folderId) {
+  currentFolderId = folderId;
+  currentFilter = 'folder';
+  showPage('notes');
 }
 
 function applyFilter(filter) {
@@ -65,10 +73,23 @@ function renderNotesPage() {
   const notes = getNotesForFilter(currentFilter);
   renderNotesListFull(notes);
 
-  // Sync filter tab active state
-  document.querySelectorAll('.filter-tab').forEach(tab => {
-    tab.classList.toggle('active', tab.dataset.filter === currentFilter);
-  });
+  const backBtn = document.getElementById('backToFoldersBtn');
+  const titleEl = document.getElementById('notesPageTitle');
+  const tabsSection = document.getElementById('notesFilterTabs');
+
+  if (currentFilter === 'folder') {
+    const folder = getAllFolders().find(f => f.id === currentFolderId);
+    titleEl.textContent = folder ? folder.name : 'Folder';
+    backBtn.style.display = 'inline-block';
+    tabsSection.style.display = 'none';
+  } else {
+    titleEl.textContent = 'All Notes';
+    backBtn.style.display = 'none';
+    tabsSection.style.display = 'flex';
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.filter === currentFilter);
+    });
+  }
 }
 
 /* ---- DRAWER (Side Menu) ---- */

@@ -100,14 +100,22 @@ function renderNotesListFull(notes) {
 }
 
 function createFolderCardHTML(folder) {
+  const count = getAllNotes().filter(n => n.folderId === folder.id && !n.isTrashed).length;
   return `
     <div class="folder-card" data-id="${folder.id}">
       <div class="folder-card-icon">📁</div>
       <div class="folder-card-info">
         <h3 class="folder-name">${escapeHtml(folder.name)}</h3>
-        <span class="folder-count">0 notes</span>
+        <span class="folder-count">${count} note${count !== 1 ? 's' : ''}</span>
       </div>
-      <button class="folder-card-menu" data-action="folder-delete" data-id="${folder.id}">⋯</button>
+      <div class="folder-card-top-actions">
+        <button class="folder-card-menu" data-action="toggle-folder-menu" data-id="${folder.id}">⋯</button>
+        <div class="note-dropdown-menu" id="folder-dropdown-${folder.id}">
+          <button class="dropdown-item" data-action="folder-add-notes" data-id="${folder.id}">➕ Add Notes</button>
+          <button class="dropdown-item" data-action="folder-rename" data-id="${folder.id}">✏️ Rename</button>
+          <button class="dropdown-item" data-action="folder-delete" data-id="${folder.id}">🗑️ Delete</button>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -126,5 +134,62 @@ function renderFoldersPage() {
     folders.forEach(folder => {
       grid.insertAdjacentHTML('beforeend', createFolderCardHTML(folder));
     });
+  }
+}
+
+function populateFolderSelect(selectedId) {
+  const select = document.getElementById('noteFolderSelect');
+  if (!select) return;
+  const folders = getAllFolders();
+  select.innerHTML = '<option value="">No Folder</option>' +
+    folders.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('');
+  select.value = selectedId || '';
+}
+
+function syncNoteCardInContainer(containerId, emptyStateId, note, shouldShow) {
+  const container = document.getElementById(containerId);
+  const emptyState = document.getElementById(emptyStateId);
+  if (!container) return;
+
+  const existing = container.querySelector(`.note-card[data-id="${note.id}"]`);
+
+  if (shouldShow) {
+    const html = createNoteCardHTML(note);
+    if (existing) {
+      existing.outerHTML = html;
+    } else {
+      container.insertAdjacentHTML('afterbegin', html);
+    }
+    if (emptyState) emptyState.style.display = 'none';
+  } else {
+    if (existing) existing.remove();
+    if (emptyState) {
+      const remaining = container.querySelectorAll('.note-card').length;
+      emptyState.style.display = remaining === 0 ? 'block' : 'none';
+    }
+  }
+}
+
+function patchNoteCard(noteId) {
+  const note = getAllNotes().find(n => n.id === noteId);
+
+  if (!note) {
+    document.querySelectorAll(`.note-card[data-id="${noteId}"]`).forEach(el => el.remove());
+    [['notesList', 'emptyState'], ['notesListFull', 'emptyStateFull']].forEach(([containerId, emptyId]) => {
+      const container = document.getElementById(containerId);
+      const emptyState = document.getElementById(emptyId);
+      if (container && emptyState) {
+        emptyState.style.display = container.querySelectorAll('.note-card').length === 0 ? 'block' : 'none';
+      }
+    });
+    return;
+  }
+
+  const showInHome = !note.isTrashed;
+  syncNoteCardInContainer('notesList', 'emptyState', note, showInHome);
+
+  if (currentPage === 'notes') {
+    const matchesNotesPage = getNotesForFilter(currentFilter).some(n => n.id === note.id);
+    syncNoteCardInContainer('notesListFull', 'emptyStateFull', note, matchesNotesPage);
   }
 }

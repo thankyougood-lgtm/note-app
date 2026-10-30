@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleInput = document.getElementById('noteTitleInput');
   const bodyInput = document.getElementById('noteBodyInput');
   const colors = ['blue', 'green', 'purple', 'red'];
+  let editingNoteId = null;
 
   /* ======================================================
      DRAWER (Hamburger Menu)
@@ -100,14 +101,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = e.target.closest('[data-action="toggle-menu"]');
     if (toggleBtn) {
       e.stopPropagation();
-      const id = toggleBtn.dataset.id;
-      const dropdown = document.getElementById(`dropdown-${id}`);
+      const dropdown = toggleBtn.parentElement.querySelector('.note-dropdown-menu');
 
       document.querySelectorAll('.note-dropdown-menu.active').forEach(menu => {
-        if (menu.id !== `dropdown-${id}`) menu.classList.remove('active');
+        if (menu !== dropdown) menu.classList.remove('active');
       });
 
+      const isOpening = !dropdown.classList.contains('active');
       dropdown.classList.toggle('active');
+
+      if (isOpening) {
+        const btnRect = toggleBtn.getBoundingClientRect();
+        const dropdownHeight = dropdown.offsetHeight || 220;
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+
+        if (spaceBelow < dropdownHeight + 80) {
+          dropdown.style.top = (btnRect.top - dropdownHeight - 4) + 'px';
+        } else {
+          dropdown.style.top = (btnRect.bottom + 4) + 'px';
+        }
+
+        dropdown.style.left = (btnRect.right - dropdown.offsetWidth) + 'px';
+      }
       return;
     }
 
@@ -117,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       toggleFavorite(favBtn.dataset.id);
       renderCounts();
-      refreshCurrentView();
+      patchNoteCard(favBtn.dataset.id);
       return;
     }
 
@@ -144,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       moveToTrash(trashBtn.dataset.id);
       renderCounts();
-      refreshCurrentView();
+      patchNoteCard(trashBtn.dataset.id);
       showToast('Moved to Trash');
       return;
     }
@@ -155,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       restoreFromTrash(restoreBtn.dataset.id);
       renderCounts();
-      refreshCurrentView();
+      patchNoteCard(restoreBtn.dataset.id);
       showToast('Note restored', 'success');
       return;
     }
@@ -171,11 +186,25 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirmed) {
           deleteForever(deleteBtn.dataset.id);
           renderCounts();
-          refreshCurrentView();
+          patchNoteCard(deleteBtn.dataset.id);
           showToast('Note deleted', 'danger');
         }
       });
       return;
+    }
+
+    /* ---- Open note for editing (click on card body) ---- */
+    const card = e.target.closest('.note-card');
+    if (card && !e.target.closest('.note-card-top-actions') && !e.target.closest('.note-card-star')) {
+      const note = getAllNotes().find(n => n.id === card.dataset.id);
+      if (note) {
+        editingNoteId = note.id;
+        titleInput.value = note.title === 'Untitled' ? '' : note.title;
+        bodyInput.value = note.body || '';
+        populateFolderSelect(note.folderId);
+        modal.classList.add('active');
+        setTimeout(() => titleInput.focus(), 300);
+      }
     }
   }
 
@@ -184,12 +213,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---- Close any open dropdown when clicking elsewhere on screen ---- */
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.note-card-top-actions')) {
+    if (!e.target.closest('.note-card-top-actions') && !e.target.closest('.folder-card-top-actions')) {
       document.querySelectorAll('.note-dropdown-menu.active').forEach(menu => {
         menu.classList.remove('active');
       });
     }
   });
+
+  /* ======================================================
+     FOLDER CARD CLICK HANDLING
+     ====================================================== */
+  function handleFolderCardClick(e) {
+    const toggleBtn = e.target.closest('[data-action="toggle-folder-menu"]');
+    if (toggleBtn) {
+      e.stopPropagation();
+      const dropdown = toggleBtn.parentElement.querySelector('.note-dropdown-menu');
+
+      document.querySelectorAll('.note-dropdown-menu.active').forEach(menu => {
+        if (menu !== dropdown) menu.classList.remove('active');
+      });
+
+      const isOpening = !dropdown.classList.contains('active');
+      dropdown.classList.toggle('active');
+
+      if (isOpening) {
+        const btnRect = toggleBtn.getBoundingClientRect();
+        const dropdownHeight = dropdown.offsetHeight || 100;
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+
+        if (spaceBelow < dropdownHeight + 80) {
+          dropdown.style.top = (btnRect.top - dropdownHeight - 4) + 'px';
+        } else {
+          dropdown.style.top = (btnRect.bottom + 4) + 'px';
+        }
+        dropdown.style.left = (btnRect.right - dropdown.offsetWidth) + 'px';
+      }
+      return;
+    }
+
+    const addNotesBtn = e.target.closest('[data-action="folder-add-notes"]');
+    if (addNotesBtn) {
+      e.stopPropagation();
+      document.querySelectorAll('.note-dropdown-menu.active').forEach(menu => menu.classList.remove('active'));
+      showNoteChecklist(addNotesBtn.dataset.id).then((saved) => {
+        if (saved) {
+          renderFoldersPage();
+          showToast('Folder updated', 'success');
+        }
+      });
+      return;
+    }
+
+    const renameBtn = e.target.closest('[data-action="folder-rename"]');
+    if (renameBtn) {
+      e.stopPropagation();
+      const folder = getAllFolders().find(f => f.id === renameBtn.dataset.id);
+      showPrompt('Rename this folder', {
+        title: 'Rename Folder',
+        defaultValue: folder ? folder.name : '',
+        confirmText: 'Rename'
+      }).then((newName) => {
+        if (newName) {
+          renameFolder(renameBtn.dataset.id, newName);
+          renderFoldersPage();
+          showToast('Folder renamed', 'success');
+        }
+      });
+      return;
+    }
+
+    const deleteBtn = e.target.closest('[data-action="folder-delete"]');
+    if (deleteBtn) {
+      e.stopPropagation();
+      showConfirm('Delete this folder? Notes inside will not be deleted, just unfiled.', {
+        title: 'Delete Folder?',
+        confirmText: 'Delete'
+      }).then((confirmed) => {
+        if (confirmed) {
+          const notesInFolder = getAllNotes().filter(n => n.folderId === deleteBtn.dataset.id);
+          notesInFolder.forEach(n => updateNoteById(n.id, { folderId: null }));
+          deleteFolder(deleteBtn.dataset.id);
+          renderFoldersPage();
+          showToast('Folder deleted', 'danger');
+        }
+      });
+      return;
+    }
+
+    const card = e.target.closest('.folder-card');
+    if (card && !e.target.closest('.folder-card-top-actions')) {
+      openFolder(card.dataset.id);
+    }
+  }
+
+  const foldersGrid = document.getElementById('foldersGrid');
+  if (foldersGrid) {
+    foldersGrid.addEventListener('click', handleFolderCardClick);
+  }
+
+  const backToFoldersBtn = document.getElementById('backToFoldersBtn');
+  if (backToFoldersBtn) {
+    backToFoldersBtn.addEventListener('click', () => {
+      currentFilter = 'all';
+      currentFolderId = null;
+      showPage('folders');
+    });
+  }
 
   function refreshCurrentView() {
     if (currentPage === 'notes') {
@@ -203,8 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
      FAB: Open "Add Note" Modal
      ====================================================== */
   document.getElementById('fabAddNote').addEventListener('click', () => {
+    editingNoteId = null;
     titleInput.value = '';
     bodyInput.value = '';
+    populateFolderSelect('');
     modal.classList.add('active');
     setTimeout(() => titleInput.focus(), 300);
   });
@@ -220,19 +351,29 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modalSaveBtn').addEventListener('click', () => {
     const title = titleInput.value.trim();
     const body = bodyInput.value.trim();
+    const folderId = document.getElementById('noteFolderSelect').value || null;
 
     if (!title && !body) {
       modal.classList.remove('active');
       return;
     }
 
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    createNote({ title: title || 'Untitled', body, color: randomColor });
+    let savedNoteId;
+    if (editingNoteId) {
+      updateNoteById(editingNoteId, { title: title || 'Untitled', body, folderId });
+      savedNoteId = editingNoteId;
+      showToast('Note updated', 'success');
+    } else {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      const newNote = createNote({ title: title || 'Untitled', body, color: randomColor, folderId });
+      savedNoteId = newNote.id;
+      showToast('Note saved', 'success');
+    }
 
+    editingNoteId = null;
     modal.classList.remove('active');
     renderCounts();
-    refreshCurrentView();
-    showToast('Note saved', 'success');
+    patchNoteCard(savedNoteId);
   });
   /* ======================================================
      FOLDERS PAGE

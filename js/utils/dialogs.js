@@ -79,3 +79,47 @@ function showPrompt(message, options = {}) {
     input.addEventListener('keydown', onKeydown);
   });
 }
+
+function showNoteChecklist(folderId) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('noteChecklistOverlay');
+    const listEl = document.getElementById('checklistList');
+    const saveBtn = document.getElementById('checklistSaveBtn');
+    const cancelBtn = document.getElementById('checklistCancelBtn');
+
+    const notes = getActiveNotes();
+    listEl.innerHTML = notes.length
+      ? notes.map(n => `
+          <label class="checklist-item">
+            <input type="checkbox" value="${n.id}" ${n.folderId === folderId ? 'checked' : ''}>
+            <span>${escapeHtml(n.title)}</span>
+          </label>
+        `).join('')
+      : '<p class="empty-state">No notes available.</p>';
+
+    overlay.classList.add('active');
+
+    function cleanup(result) {
+      overlay.classList.remove('active');
+      saveBtn.removeEventListener('click', onSave);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+
+    function onSave() {
+      const checkedIds = Array.from(listEl.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      notes.forEach(n => {
+        if (checkedIds.includes(n.id)) {
+          updateNoteById(n.id, { folderId: folderId });
+        } else if (n.folderId === folderId) {
+          updateNoteById(n.id, { folderId: null });
+        }
+      });
+      cleanup(true);
+    }
+    function onCancel() { cleanup(false); }
+
+    saveBtn.addEventListener('click', onSave);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
